@@ -1,4 +1,6 @@
 import bb84
+from Cipher import Cipher
 
 if __name__ == "__main__":
-    bb84.generate_random_bitstring(10)
+    cipher = Cipher()
+    print(cipher.get_cipher_as_bitstring()) 

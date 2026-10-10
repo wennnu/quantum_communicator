@@ -22,4 +22,4 @@ for i in range(0, NUM_ALPHABET):
     letter = chr(ord('A')+i)
     encode_alphabet[letter] = to_binary(i) 
 
-caesar_cipher(caesar_alphabet)
+cipher = Cipher()
