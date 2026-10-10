@@ -1,7 +1,19 @@
-from qiskit import QuantumCircuit
+from qiskit import QuantumCircuit, transpile
 from qiskit.circuit.library import HGate, XGate, CXGate
+from qiskit_aer import AerSimulator
 
-import random
+simulator = AerSimulator()
+
+rand_circ = QuantumCircuit(1,1)
+rand_circ.h(0)
+rand_circ.measure(0,0)
+comp_rand_circ = transpile(rand_circ, simulator)
+
+def generate_random_bitstring(str_length):
+    simulation = simulator.run(comp_rand_circ, shots = str_length, memory = True)
+    bitstring = simulation.result().get_memory()
+    print(bitstring)
+    return bitstring
 
 def to_binary(string):
     return ''.join(format(ord(string), '08b'))
@@ -9,11 +21,11 @@ def to_binary(string):
 def generate_key(length):
     key = ''
     for i in range(length):
-        key += str(random.randrange(0,2))
+        key += str(generate_random_bitstring(1))
     return key
 
 def choose_basis(qc,i):
-    rand = random.randrange(0,2)
+    rand = generate_random_bitstring(1)
     if rand == 0:
         qc.h(i)
     else:
@@ -32,8 +44,7 @@ def decoding_key(decoding_qc, key, length):
         if key[i] == '1':
            decoding_qc.x(i)
         choose_basis(decoding_qc,i)
-
-
+    
 NUM_ALPHABET = 26
 LENGTH = 8
 encoding_circuit = QuantumCircuit(LENGTH, LENGTH)
@@ -53,6 +64,5 @@ decoding_key(decoding_circuit, key, LENGTH)
 
 encoding_circuit.draw(output="mpl")
 decoding_circuit.draw(output="mpl")
-
 
 
