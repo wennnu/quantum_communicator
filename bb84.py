@@ -3,6 +3,7 @@ from qiskit.circuit.library import HGate, XGate, CXGate
 from qiskit_aer import AerSimulator
 
 from module import *
+from teleport import *
 
 simulator = AerSimulator()
 
@@ -21,5 +22,5 @@ player_guess = input("Enter guess a letter: ")
 encoded_guess = caesar_alphabet(player_guess)
 binary_encoded = binary_alphabet[encoded_guess]
 
-bob_basis = encoding_key(bob_qc, player_guess, encoded_guess)
+bob_basis_string = encoding_key(bob_qc, player_guess, encoded_guess)
 
