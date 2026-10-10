@@ -6,7 +6,6 @@ import random
 def generate_random_bitstring(str_length):
     simulation = simulator.run(comp_rand_circ, shots = str_length, memory = True)
     bitstring = simulation.result().get_memory()
-    print(bitstring)
     return bitstring
 
 def to_binary(num):
