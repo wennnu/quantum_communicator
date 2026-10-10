@@ -21,7 +21,6 @@ for i in range(0, NUM_ALPHABET):
     letter = chr(ord('A')+i)
     encode_alphabet[letter] = to_binary(i) 
 
-caesar_cipher(caesar_alphabet)
 
 player_guess = input("Enter guess a letter: ")
 encoded_guess = encode_alphabet[caesar_alphabet[player_guess]]
@@ -29,3 +28,4 @@ encoded_guess = encode_alphabet[caesar_alphabet[player_guess]]
 bob_basis = encoding_key(bob_qc, player_guess, encoded_guess)
 
 
+cipher = Cipher()
