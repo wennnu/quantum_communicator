@@ -25,22 +25,17 @@ def caesar_cipher(caesar_alphabet):
         caesar_alphabet[letter] = chr(rand)
     return caesar_alphabet
    
-def choose_basis(qc,i):
+def choose_basis(qc, i):
     rand = generate_random_bitstring(1)
     if rand == 0:
         qc.h(i)
-    else:
-        qc.x(i)
+        return 'X'
+    return 'Z'
 
-def encoding_key(encoding_qc, key):
+def encoding_key(bob_qc, message, bitstring):
+    basis_str = ''
     for i in range(LENGTH):
-        if key[i] == '1':
-           encoding_qc.x(i)
-        choose_basis(encoding_qc,i)
-
-def decoding_key(decoding_qc, key, length):
-    for i in range(LENGTH):
-        # receiver decode
-        if key[i] == '1':
-           decoding_qc.x(i)
-        choose_basis(decoding_qc,i)
+        if bitstring[i] == '1':
+           bob_qc.x(i)
+        basis_str = basis_str + choose_basis(bob_qc, i)
+    return basis_str

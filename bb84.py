@@ -14,8 +14,7 @@ comp_rand_circ = transpile(rand_circ, simulator)
 encode_alphabet = {}
 caesar_alphabet = {}
 
-encoding_circuit = QuantumCircuit(LENGTH, LENGTH)
-decoding_circuit = QuantumCircuit(LENGTH, LENGTH)
+bob_qc = QuantumCircuit(LENGTH, LENGTH)
 
 # encode alphabet with 5 bits binary
 for i in range(0, NUM_ALPHABET):
@@ -23,3 +22,10 @@ for i in range(0, NUM_ALPHABET):
     encode_alphabet[letter] = to_binary(i) 
 
 caesar_cipher(caesar_alphabet)
+
+player_guess = input("Enter guess a letter: ")
+encoded_guess = encode_alphabet[caesar_alphabet[player_guess]]
+
+bob_basis = encoding_key(bob_qc, player_guess, encoded_guess)
+
+
