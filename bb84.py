@@ -2,6 +2,8 @@ from qiskit import QuantumCircuit, transpile
 from qiskit.circuit.library import HGate, XGate, CXGate
 from qiskit_aer import AerSimulator
 
+import random
+
 simulator = AerSimulator()
 
 rand_circ = QuantumCircuit(1,1)
