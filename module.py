@@ -33,10 +33,12 @@ def encoding_key(bob_qc, message, bitstring):
 class Cipher:
     def __init__(self):
         self.cipher = {}
+        self.binary_alphabet = {}
+        self.encode_binary_alphabet()
         self.shuffle()
 
     def shuffle(self):
-        for i in range(0, 26):
+        for i in range(0, NUM_ALPHABET):
             rand = random.randrange(ord('A'), ord('Z')+1)
             letter = chr(ord('A')+i)
             while chr(rand) in self.cipher.values():
@@ -46,5 +48,13 @@ class Cipher:
     def get_as_dictionary(self):
         return self.cipher
 
+    def get_binary_alphabet(self):
+        return self.binary_alphabet
+
     def get_as_bitstring(self):
         return ''.join(format(00000+((ord(letter)-ord('A'))),'05b') for letter in self.cipher.values())
+
+    def encode_binary_alphabet(self):
+        for i in range(NUM_ALPHABET):
+            self.binary_alphabet[chr(ord('A')+1)] = to_binary(i)
+        return self.binary_alphabet

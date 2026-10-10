@@ -25,11 +25,6 @@ def teleport(state):
     qc.measure(1,1)
     with qc.if_test((qc.cregs[0][1],1)):
         qc.z(2)
-
-qc = QuantumCircuit(3,3)
-teleport('+')
-qc.draw(output="mpl", filename="teleport_circuit")
-
 # test
 # simulator = AerSimulator()
 # sampler = SamplerV2()
