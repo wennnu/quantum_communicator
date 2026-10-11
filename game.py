@@ -61,6 +61,7 @@ def display_bob_screen(pattern, guessed_letters, attempts):
     print("             BOB'S VIEW")
     print("=" * 38)
     display_word(pattern)
+
     print(
         "\nGuessed letters: "
         + (", ".join(sorted(guessed_letters)) or "(none)")
@@ -71,14 +72,17 @@ def display_bob_screen(pattern, guessed_letters, attempts):
 def play_round(words):
     word = random.choice(words)
 
-    # Establish a fresh quantum-generated session key.
+    # Alice's word and Bob's guesses use disjoint key segments.
     cipher = RoundCipher(
+        word_length=len(word),
         eve_knowledge=EVE_KNOWLEDGE,
         intercept_probability=EVE_INTERCEPT_PROBABILITY,
     )
 
-    # Eve knows the length of the word, but not the word itself.
-    position_candidates = cipher.get_word_candidates(word)
+    # Eve sees the encrypted word, not the plaintext word.
+    encrypted_word = cipher.encrypt_word(word)
+    position_candidates = cipher.get_word_candidates(encrypted_word)
+
     eve = Eve(position_candidates, words, cipher)
 
     pattern = ["_"] * len(word)
@@ -87,7 +91,9 @@ def play_round(words):
 
     print("\nBB84 session established.")
     print(f"Sampled quantum bit error rate: {cipher.qber:.1%}")
-    print("A fresh five-bit key segment will be used for each guess.")
+    print(
+        "A fresh five-bit key segment will be used for each guess."
+    )
     input("\nPress Enter to begin Hangman...")
 
     while attempts > 0 and "_" in pattern:
@@ -97,17 +103,13 @@ def play_round(words):
         guess = get_bob_guess(guessed_letters)
         guessed_letters.add(guess)
 
-        # Bob encrypts the letter using the next five BB84 key bits.
+        # Bob encrypts his guess. Eve only receives the ciphertext.
         ciphertext = cipher.encode_letter(guess)
-
-        # Eve sees the ciphertext and uses only the key bits
-        # she currently knows to form possible plaintext letters.
         possible_letters = cipher.get_possible_letters(ciphertext)
 
-        # Alice decrypts the message.
+        # Alice decrypts the guess and checks her secret word.
         received_letter = cipher.decode_letter(ciphertext)
 
-        # Alice checks the decrypted letter against her secret word.
         positions = [
             index
             for index, letter in enumerate(word, start=1)
@@ -117,12 +119,14 @@ def play_round(words):
         if positions:
             for position in positions:
                 pattern[position - 1] = received_letter
+
             print("\nAlice confirms the letter is present.")
         else:
             attempts -= 1
             print("\nAlice confirms the letter is absent.")
 
-        # Eve receives no direct access to Bob's guess or board.
+        # Eve receives the ciphertext's candidate letters and
+        # Alice's public response, but not Bob's plaintext guess.
         eve.observe(possible_letters, positions)
 
         clear_screen()
@@ -139,6 +143,7 @@ def play_round(words):
 
         print(f"Bob has {attempts} wrong guesses remaining.")
         eve.add_note()
+
         input("\nPress Enter to pass the turn back to Bob...")
 
     clear_screen()
@@ -176,6 +181,7 @@ def main():
         except RuntimeError as error:
             print(f"\nCould not establish a usable BB84 session: {error}")
             print("This round could not be played.")
+
             again = input("\nTry again? (y/n): ").strip().lower()
             if again == "y":
                 continue
