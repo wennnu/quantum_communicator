@@ -1,4 +1,5 @@
 import random
+import time
 import string
 from pathlib import Path
 
@@ -43,7 +44,13 @@ def display_word(pattern):
 
 def get_bob_guess(guessed_letters):
     while True:
-        guess = input("\nBob, guess a letter: ").strip().lower()
+
+        print("Bob's thinking...")
+        time.sleep(2.0)
+        guess = random.choice(tuple(ALPHABET)).strip().lower()
+#        guess = input("\nBob, guess a letter: ").strip().lower()
+        print("Bob made a guess: {}".format(guess))
+        time.sleep(2.0)
 
         if len(guess) != 1 or guess not in ALPHABET:
             print("Please enter one English letter.")
@@ -94,7 +101,9 @@ def play_round(words):
     print(
         "A fresh five-bit key segment will be used for each guess."
     )
-    input("\nPress Enter to begin Hangman...")
+    print("The game will begin soon...")
+    time.sleep(2.0)
+    #input("\nPress Enter to begin Hangman...")
 
     while attempts > 0 and "_" in pattern:
         clear_screen()
@@ -160,7 +169,10 @@ def play_round(words):
         print(f"Bob has {attempts} wrong guesses remaining.")
         eve.add_note()
 
-        input("\nPress Enter to pass the turn back to Bob...")
+        print("We will go back to Bob soon...")
+        time.sleep(2.0)
+
+        #input("\nPress Enter to pass the turn back to Bob...")
 
     clear_screen()
 
@@ -200,10 +212,10 @@ def main():
             print(f"\nCould not establish a usable BB84 session: {error}")
             print("This round could not be played.")
 
-            again = input("\nTry again? (y/n): ").strip().lower()
-            if again == "y":
-                continue
-            break
+            #again = input("\nTry again? (y/n): ").strip().lower()
+            #if again == "y":
+            #    continue
+            #break
 
         scores[winner] += 1
 
@@ -212,10 +224,12 @@ def main():
         print("=" * 24)
         print(f"Bob: {scores['bob']}")
         print(f"Eve: {scores['eve']}")
+        time.sleep(2.0)
 
-        again = input("\nPlay again? (y/n): ").strip().lower()
-        if again != "y":
-            break
-        clear_screen()
+        #again = input("\nPlay again? (y/n): ").strip().lower()
+        #if again != "y":
+        #    break
+        #clear_screen()
 
     print("\nThanks for playing Quantum Hangman!")
+    time.sleep(2)

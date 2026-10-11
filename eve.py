@@ -1,6 +1,9 @@
 import string
+import time
+from pathlib import Path
 
 ALPHABET = set(string.ascii_lowercase)
+WORD_FILE = Path(__file__).with_name("words.txt")
 
 
 class Eve:
@@ -141,19 +144,29 @@ class Eve:
             print("(No notes yet)")
 
     def add_note(self):
-        note = input(
-            "\nEve, add a deduction or note (Enter to skip): "
-        ).strip()
+        print("Eve adds notes to themselves...")
+        time.sleep(2.0)
+        print("Eve noted down their observation.")
+        time.sleep(2.0)
 
-        if note:
-            self.notes.append(note)
+        #note = input(
+        #    "\nEve, add a deduction or note (Enter to skip): "
+        #).strip()
+
+        #if note:
+        #    self.notes.append(note)
 
     def final_guess(self):
         while True:
-            guess = input(
-                f"\nEve, enter your final word guess "
-                f"({self.word_length} letters): "
-            ).strip().lower()
+            time.sleep(2)
+            print("Eve takes a final word guess...")
+            time.sleep(3)
+            words = [line.strip().lower() for line in WORD_FILE.read_text(encodings="utf-8").splitlines() if line.strip()]
+            guess = random.choice(words)
+            #guess = input(
+            #    f"\nEve, enter your final word guess "
+            #    f"({self.word_length} letters): "
+            #).strip().lower()
 
             if (
                 len(guess) == self.word_length
