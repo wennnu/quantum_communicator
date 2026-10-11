@@ -1,63 +1,38 @@
-from qiskit import QuantumCircuit, transpile
-from qiskit_aer import AerSimulator
-import random
+import string
 
-NUM_ALPHABET = 26
+ALPHABET = string.ascii_lowercase
 LENGTH = 5
 
-simulator = AerSimulator()
 
-rand_circ = QuantumCircuit(1,1)
-rand_circ.h(0)
-rand_circ.measure(0,0)
-comp_rand_circ = transpile(rand_circ, simulator)
+def letter_to_bits(letter):
+    """Convert a letter a-z to its five-bit index."""
+    letter = letter.lower()
 
-def generate_random_bitstring(str_length):
-    simulation = simulator.run(rand_circ, shots = str_length, memory=True)
-    bitstring = simulation.result().get_memory()
-    return bitstring
+    if letter not in ALPHABET:
+        raise ValueError("Expected one English letter.")
 
-def to_binary(num):
-    bitstring = ''
-    while num > 0:
-       bitstring = str(num & 1) + bitstring
-       num >>= 1
-    return bitstring
-   
-def choose_basis(qc, i):
-    rand = generate_random_bitstring(1)
-    if rand == 0:
-        qc.h(i*3)
-        return 'X'
-    return 'Z'
+    return format(ALPHABET.index(letter), "05b")
 
-def encoding_key(bob_qc, message, bitstring):
-    basis_str = ''
-    print("bitstring: {}".format(bitstring))
-    for i in range(LENGTH):
-        if bitstring[i] == '1':
-           bob_qc.x(i*3)
-        basis_str = basis_str + choose_basis(bob_qc, i)
-    return basis_str
 
-class Cipher:
-    def __init__(self):
-        self.cipher = {}
-        self.shuffle()
+def bits_to_letter(bits):
+    """Convert a five-bit value back to a letter."""
+    if len(bits) != LENGTH or any(b not in "01" for b in bits):
+        raise ValueError("Expected exactly five binary digits.")
 
-    def shuffle(self):
-        for i in range(0, NUM_ALPHABET):
-            rand = random.randrange(ord('A'), ord('Z')+1)
-            letter = chr(ord('A')+i)
-            while chr(rand) in self.cipher.values():
-                rand = random.randrange(ord('A'), ord('Z')+1)
-            self.cipher[letter] = chr(rand)
+    index = int(bits, 2)
 
-    def get_as_dictionary(self):
-        return self.cipher
+    if index >= len(ALPHABET):
+        raise ValueError("Invalid letter encoding.")
 
-    def get_binary_alphabet(self):
-        return self.binary_alphabet
+    return ALPHABET[index]
 
-    def get_as_bitstring(self):
-        return ''.join(format(00000+((ord(letter)-ord('A'))),'05b') for letter in self.cipher.values())
+
+def xor_bits(left, right):
+    """XOR two equal-length binary strings."""
+    if len(left) != len(right):
+        raise ValueError("Bit strings must have equal length.")
+
+    return "".join(
+        "1" if a != b else "0"
+        for a, b in zip(left, right)
+    )
