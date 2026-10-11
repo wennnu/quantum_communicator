@@ -105,6 +105,17 @@ def play_round(words):
 
         # Bob encrypts his guess. Eve only receives the ciphertext.
         ciphertext = cipher.encode_letter(guess)
+
+        # Eve gets a chance to learn this guess's key block.
+        eve_learned = cipher.try_learn_current_key_bits(
+            EVE_INTERCEPT_PROBABILITY
+        )
+
+        if eve_learned:
+            print("\nEve successfully learned the current key block!")
+        else:
+            print("\nEve failed to learn the current key block.")
+
         possible_letters = cipher.get_possible_letters(ciphertext)
 
         # Alice decrypts the guess and checks her secret word.
@@ -198,5 +209,6 @@ def main():
         again = input("\nPlay again? (y/n): ").strip().lower()
         if again != "y":
             break
+        clear_screen()
 
     print("\nThanks for playing Quantum Hangman!")
