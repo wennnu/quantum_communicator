@@ -59,6 +59,16 @@ class Eve:
                 if 0 <= index < self.word_length:
                     actual_candidates &= self.position_candidates[index]
 
+            # Show candidates consistent with both the guess ciphertext
+            # and Alice's reported hit positions.
+            observation["possible_letters"] = actual_candidates.copy()
+
+            for position in positions:
+                index = position - 1
+
+                if 0 <= index < self.word_length:
+                    self.position_candidates[index] &= actual_candidates
+
             if len(actual_candidates) == 1:
                 actual_letter = next(iter(actual_candidates))
                 reported = set(positions)
