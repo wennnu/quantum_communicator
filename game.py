@@ -6,8 +6,8 @@ from temp_cipher import RoundCipher
 from eve import Eve
 
 MAX_ATTEMPTS = 5
-EVE_KNOWLEDGE = 0.25
-EVE_INTERCEPT_PROBABILITY = 0.25
+EVE_KNOWLEDGE = 0.40
+EVE_INTERCEPT_PROBABILITY = 0
 ALPHABET = set(string.ascii_lowercase)
 
 WORD_FILE = Path(__file__).with_name("words.txt")

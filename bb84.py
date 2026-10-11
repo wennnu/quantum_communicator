@@ -51,7 +51,7 @@ def _make_circuit(bit, alice_basis, intercepted, eve_basis, bob_basis):
 
 def generate_key(
     key_length,
-    intercept_probability=0.25,
+    intercept_probability=0,
     test_bits=16,
     error_threshold=0.11,
 ):
