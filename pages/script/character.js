@@ -1,5 +1,6 @@
 const cards = document.querySelectorAll(".character-card");
 const start_button = document.getElementById("start-button");
+let selectedCharacter = null;
 
 cards.forEach(card => {
 	card.addEventListener("click", () => {
@@ -10,9 +11,15 @@ cards.forEach(card => {
 	});
 });
 
-
 start_button.addEventListener("click", () => {
 	if (selectedCharacter) {
 		alert("You selected ${selectedCharacter}$!");
 	}
+});
+
+start_button.addEventListener('click', () => {
+    if (selectedCharacter) {
+        const targetPage = selectedCharacter.toLowerCase() + '.html';
+        window.location.href = `./${targetPage}`;
+    }
 });
