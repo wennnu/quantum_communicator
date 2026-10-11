@@ -181,6 +181,7 @@ def play_round(words):
 
 
 def main():
+    clear_screen()
     words = load_words()
     scores = {"bob": 0, "eve": 0}
 
