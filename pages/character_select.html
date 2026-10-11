@@ -1,23 +1,19 @@
 <html>
   <head>
     <title>Quantum Hangman</title>
+    <link rel="stylesheet" href="./css/character.css">
+    <script src="./script/character.js" defer></script>
   </head>
   <body>
-    <div style="margin: auto">
-      <h1 style="text-align: center">please select your character:</h1>
-    </div>
-    <div style="display: flex; align-items: center; justify-content: center">
-      <button onclick="bob(), bob_next()">bob</button>
-      <button onclick="eve(), eve_next()">eve</button>
-    </div>
-    <script>"./main.js"</script>
-    <script>
-    function bob_next(){
-      window.location.href = 'bob.html';
-    }
-    function eve_next(){
-      window.location.href = 'eve.html';
-    }
-    </script>
+   <div>
+     <h1>Select Your Character</h1>
+   </div>
+   <div class="character-container">
+	   <div class="character-card"><h2>Bob</h2></div>     
+	   <div class="character-card"><h2>Eve</h2></div>
+   </div>
+   <div>
+     <button id="start-button" class="start-button" disabled>Start Game</button>
+   </div>
   </body>
 </html>
