@@ -132,6 +132,14 @@ def main():
 
 if __name__ == "__main__":
     main()
+from html import window
+
+def host():
+    pass
+
+def join():
+    pass
+
     #MAIN MENU
         #host or join
         #if host
@@ -167,4 +175,3 @@ if __name__ == "__main__":
                     #bob wins
                     #eve loses
         #play again?
-    # pass
