@@ -29,16 +29,28 @@ def choose_basis(qc, i):
     if rand == 0:
         qc.h(i*3)
         return 'X'
+    qc.z(i*3) 
     return 'Z'
 
 def encoding_key(bob_qc, message, bitstring):
     basis_str = ''
-    print("bitstring: {}".format(bitstring))
     for i in range(LENGTH):
         if bitstring[i] == '1':
            bob_qc.x(i*3)
         basis_str = basis_str + choose_basis(bob_qc, i)
     return basis_str
+
+def decoding_key(bob_qc):
+    basis_str = ''
+    for i in range(LENGTH):
+        basis_str = basis_str + choose_basis(bob_qc, i)
+
+def compare_basis(bob_basis, alice_basis):
+    bits_keep = []
+    for i in range(LENGTH):
+        if bob_basis[i] != alice_basis[i]:
+            bits_keep.append(keep_bits)
+    return bits_keep
 
 class Cipher:
     def __init__(self):
