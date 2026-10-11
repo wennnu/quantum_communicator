@@ -17,6 +17,7 @@ class Eve:
 
         self.observations = []
         self.notes = []
+        self.partial_word = ""
 
     def observe(self, possible_letters, positions):
         """
@@ -123,12 +124,13 @@ class Eve:
         for index, candidates in enumerate(
             self.position_candidates, start=1
         ):
-            letters = sorted(candidates)
+            if(self.partial_word[index-1]!="_"):
+                letters = sorted(candidates)
 
-            print(
-                f"Position {index}: "
-                + (", ".join(letters) if letters else "(none)")
-            )
+                print(
+                    f"Position {index}: "
+                    + (", ".join(letters) if letters else "(none)")
+                )
 
         print("\nYour notes:")
 
@@ -163,3 +165,6 @@ class Eve:
                 f"Please enter exactly {self.word_length} "
                 "English letters."
             )
+    
+    def update_info(self, partial_word):
+        self.partial_word = partial_word

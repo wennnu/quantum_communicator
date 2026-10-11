@@ -131,7 +131,11 @@ def play_round(words):
             for position in positions:
                 pattern[position - 1] = received_letter
 
-            print("\nAlice confirms the letter is present.")
+            print("\nAlice confirms the letter is present at position(s): "                
+                + ", ".join(map(str, positions))
+                + "."
+            )
+
         else:
             attempts -= 1
             print("\nAlice confirms the letter is absent.")
@@ -141,6 +145,7 @@ def play_round(words):
         eve.observe(possible_letters, positions)
 
         clear_screen()
+        eve.update_info(pattern)
         eve.display()
 
         if positions:
@@ -168,6 +173,7 @@ def play_round(words):
     print("Bob solved Hangman!")
     print("Eve gets one final guess.")
 
+    eve.update_info(pattern)
     eve.display()
     eve_guess = eve.final_guess()
 
