@@ -2,20 +2,19 @@
   <head>
     <title>Quantum Hangman</title>
     <link rel="stylesheet" href="./css/index.css">
+    <script src="./script/index.js" defer></script>
   </head>
   <body>
     <div>
       <h1>Welcome To Quantum Hangman</h1>
     </div>
-    <div class="center">
-	<button>Rules</button>
+    <div class="button-container">
+	<button id="rule-button">How To Play</button>
 	<button>Play</button>
     </div>
-    <script>"./main.js"</script>
-    <script>
-    function next(){
-      window.location.href = 'character_select.html';
-    }
-    </script>
+  <dialog id="rule-modal">
+    <h2>How To Play Quantum Hangman</h2>
+    <button id="close-button">Close</button>
+  </dialog>
   </body>
 </html>
