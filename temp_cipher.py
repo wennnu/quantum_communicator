@@ -169,3 +169,20 @@ class RoundCipher:
             self.get_possible_letters_for_block(ciphertext, indices)
             for ciphertext, indices in encrypted_word
         ]
+
+    def try_learn_current_key_bits(self, probability):
+        """
+        Give Eve a probability of learning the key bits used
+        for Bob's current encrypted guess.
+
+        Returns True if Eve learns this block.
+        """
+        probability = max(0.0, min(1.0, probability))
+
+        if random.random() >= probability:
+            return False
+
+        for index in self.current_indices:
+            self.eve_known_bits[index] = int(self.key[index])
+
+        return True
