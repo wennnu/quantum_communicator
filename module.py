@@ -3,7 +3,6 @@ import string
 ALPHABET = string.ascii_lowercase
 LENGTH = 5
 
-
 def letter_to_bits(letter):
     """Convert a letter a-z to its five-bit index."""
     letter = letter.lower()
