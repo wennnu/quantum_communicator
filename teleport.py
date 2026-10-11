@@ -1,43 +1,22 @@
 from qiskit import QuantumCircuit
+from qiskit.circuit import ClassicalRegister, QuantumRegister
 from qiskit.circuit.library import HGate, XGate, CXGate
 from qiskit_aer import AerSimulator
 from qiskit_aer.primitives import SamplerV2
 from qiskit.visualization import plot_histogram
 
-def teleport(state):
-    # prepare state
-    if state == '1':
-        qc.x(0)
-    elif state == '+':
-        qc.h(0)
-    elif state == '-':
-        qc.x(0)
-        qc.h(0)
-    
-    qc.h(1)
-    qc.cx(1,2)
-    qc.cx(0,1)
-    qc.h(0)
+# assume qindex, cindex the index of the state being transfered
+def teleport(qc, qindex, cindex):
+    qc.h(qindex+1)
+    qc.cx(qindex+1,qindex+2)
+    qc.cx(qindex,qindex+1)
+    qc.h(qindex)
 
-    qc.measure(0,0)
-    with qc.if_test((qc.cregs[0][0], 1)):
-        qc.x(2)
-    qc.measure(1,1)
-    with qc.if_test((qc.cregs[0][1],1)):
-        qc.z(2)
-# test
-# simulator = AerSimulator()
-# sampler = SamplerV2()
+    qc.barrier()
 
-# states = ['0', '1', '+', '-']
-#for i in range(len(states)): 
-#    qc = QuantumCircuit(3,3)
-#    teleport(states[i])
-#    qc.measure(2,2)
-#
-#    job = sampler.run([qc], shots=128)
-#    result = job.result()
-#    counts = result[0].data.c.get_counts()
-#    print(counts)
-#    filename = "result{}".format(i)
-#    plot_histogram(counts, filename=filename)
+    qc.measure(qindex,cindex)
+    with qc.if_test((qc.cregs[0][cindex],1)):
+        qc.x(qindex+2)
+    qc.measure(qindex+1,qindex+1)
+    with qc.if_test((qc.cregs[0][cindex+1],1)):
+        qc.z(qindex+2)

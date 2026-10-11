@@ -1,10 +1,19 @@
+from qiskit import QuantumCircuit, transpile
+from qiskit_aer import AerSimulator
+import random
+
 NUM_ALPHABET = 26
 LENGTH = 5
 
-import random
+simulator = AerSimulator()
+
+rand_circ = QuantumCircuit(1,1)
+rand_circ.h(0)
+rand_circ.measure(0,0)
+comp_rand_circ = transpile(rand_circ, simulator)
 
 def generate_random_bitstring(str_length):
-    simulation = simulator.run(comp_rand_circ, shots = str_length, memory = True)
+    simulation = simulator.run(rand_circ, shots = str_length, memory=True)
     bitstring = simulation.result().get_memory()
     return bitstring
 
@@ -18,23 +27,22 @@ def to_binary(num):
 def choose_basis(qc, i):
     rand = generate_random_bitstring(1)
     if rand == 0:
-        qc.h(i)
+        qc.h(i*3)
         return 'X'
     return 'Z'
 
 def encoding_key(bob_qc, message, bitstring):
     basis_str = ''
+    print("bitstring: {}".format(bitstring))
     for i in range(LENGTH):
         if bitstring[i] == '1':
-           bob_qc.x(i)
+           bob_qc.x(i*3)
         basis_str = basis_str + choose_basis(bob_qc, i)
     return basis_str
 
 class Cipher:
     def __init__(self):
         self.cipher = {}
-        self.binary_alphabet = {}
-        self.encode_binary_alphabet()
         self.shuffle()
 
     def shuffle(self):
@@ -53,8 +61,3 @@ class Cipher:
 
     def get_as_bitstring(self):
         return ''.join(format(00000+((ord(letter)-ord('A'))),'05b') for letter in self.cipher.values())
-
-    def encode_binary_alphabet(self):
-        for i in range(NUM_ALPHABET):
-            self.binary_alphabet[chr(ord('A')+1)] = to_binary(i)
-        return self.binary_alphabet
