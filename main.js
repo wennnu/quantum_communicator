@@ -1,7 +1,5 @@
 import * as mn from 'main'
 
-let word = ""
-
 function host() {
     mn.host().callPromising();
 }
