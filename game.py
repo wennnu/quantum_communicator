@@ -6,8 +6,8 @@ from temp_cipher import RoundCipher
 from eve import Eve
 
 MAX_ATTEMPTS = 5
-EVE_KNOWLEDGE = 0.25
-EVE_INTERCEPT_PROBABILITY = 0.25
+EVE_KNOWLEDGE = 0.40
+EVE_INTERCEPT_PROBABILITY = 0
 ALPHABET = set(string.ascii_lowercase)
 
 WORD_FILE = Path(__file__).with_name("words.txt")
@@ -105,6 +105,17 @@ def play_round(words):
 
         # Bob encrypts his guess. Eve only receives the ciphertext.
         ciphertext = cipher.encode_letter(guess)
+
+        # Eve gets a chance to learn this guess's key block.
+        eve_learned = cipher.try_learn_current_key_bits(
+            EVE_INTERCEPT_PROBABILITY
+        )
+
+        if eve_learned:
+            print("\nEve successfully learned the current key block!")
+        else:
+            print("\nEve failed to learn the current key block.")
+
         possible_letters = cipher.get_possible_letters(ciphertext)
 
         # Alice decrypts the guess and checks her secret word.
@@ -120,7 +131,11 @@ def play_round(words):
             for position in positions:
                 pattern[position - 1] = received_letter
 
-            print("\nAlice confirms the letter is present.")
+            print("\nAlice confirms the letter is present at position(s): "                
+                + ", ".join(map(str, positions))
+                + "."
+            )
+
         else:
             attempts -= 1
             print("\nAlice confirms the letter is absent.")
@@ -130,6 +145,7 @@ def play_round(words):
         eve.observe(possible_letters, positions)
 
         clear_screen()
+        eve.update_info(pattern)
         eve.display()
 
         if positions:
@@ -157,6 +173,7 @@ def play_round(words):
     print("Bob solved Hangman!")
     print("Eve gets one final guess.")
 
+    eve.update_info(pattern)
     eve.display()
     eve_guess = eve.final_guess()
 
@@ -170,6 +187,7 @@ def play_round(words):
 
 
 def main():
+    clear_screen()
     words = load_words()
     scores = {"bob": 0, "eve": 0}
 
@@ -198,5 +216,6 @@ def main():
         again = input("\nPlay again? (y/n): ").strip().lower()
         if again != "y":
             break
+        clear_screen()
 
     print("\nThanks for playing Quantum Hangman!")
