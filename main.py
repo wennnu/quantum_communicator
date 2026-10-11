@@ -10,10 +10,10 @@ def main():
 if __name__ == "__main__":
     main()
 
-from html import window
+#from html import window
 
-def host():
-    pass
+#def host():
+#    pass
 
-def join():
-    pass
+#def join():
+#    pass
