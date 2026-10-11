@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <title>Quantum Hangman</title>
+    <link rel="stylesheet" href="./css/index.css">
+    <script src="./script/index.js" defer></script>
+  </head>
+  <body>
+    <div>
+      <h1>Welcome To Quantum Hangman</h1>
+    </div>
+    <div class="button-container">
+	<button id="rule-button">How To Play</button>
+	<button id="play-button">Play</button>
+    </div>
+  <dialog id="rule-modal">
+    <h2>How To Play Quantum Hangman</h2>
+    <p>
+      Quantum Hangman takes the popular Hangman game and adds some elements of quantum key distribution (QKD) to the game mechanics.
+    </p>
+    <br>
+    <h2>The Hangman Game</h2>
+    <p>
+      In the original Hangman game, a random word is drawn and is displayed as "blanks". The player's goal is to guess the word before
+      a Hangman is draw, otherwise they lose. The player attempts by guessing a letter from the English alphabet. The hidden word reveals
+      the letters if it has them. If the guess is wrong, a body part of the Hangman will be drawn.
+    </p>
+    <h2>QKD Adds To The Twist</h2>
+    <p>
+      Suppose there are two players competiting in this game. For convinience, we call Player 1 "Bob" and Player 2 "Eve". As Bob, you play
+      the Hangman normally by sending the letter to Alice. The letter will be ciphered (i.e. A:F), encoded in 5-bit binary (i.e. 00001) and
+      encoded again using the BB84 protocol. The 5 qubits are then entangled and teleported to Alice. Alice is then able to tell you whether
+      your answer is correct or not. The other player, Eve, is also playing the game and is competing with you. They are able to eavesdrop
+      on your conversation between Alice and you. However, they don't know your cipher rules, so they don't know what you actually sent, but they
+      know if it's correct or not. Eve made a list of letters with its corresponding 5-bit binary and their goal is to decipher what letters you 
+      actually sent over. By using the photon-split attack, Eve has an advantage in the beginning where a portion of the binary digits are revealed to them.
+      They have to guess the correct basis you used to encode the message and then make an educated guess in the end.
+    </p>
+    <h2>Winning Conditions</h2>
+    <p>
+      If Eve wins, Bob loses no matter what. If Eve loses and Bob is able to guess the word correctly, Bob wins. Otherwise, both loses.
+    </p>
+    <button id="close-button">Close</button>
+  </dialog>
+  </body>
+</html>

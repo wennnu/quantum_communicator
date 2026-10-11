@@ -1,74 +1,171 @@
 import random
 import string
 
+from bb84 import generate_key, EveDetectedError
+from module import letter_to_bits, bits_to_letter, xor_bits
+
 ALPHABET = string.ascii_lowercase
-ALL_CODES = [f"{n:05b}" for n in range(32)]
+BITS_PER_LETTER = 5
+MAX_GUESSES = 26
 
 
 class RoundCipher:
-    def __init__(self, eve_knowledge=0.25):
-        """
-        eve_knowledge = fraction of the alphabet Eve can
-        eliminate for each encrypted character.
+    def __init__(
+        self,
+        word_length,
+        eve_knowledge=0.25,
+        intercept_probability=0.25,
+    ):
+        if not 1 <= word_length <= 26:
+            raise ValueError("Word length must be between 1 and 26.")
 
-        Example:
-            0.25 -> approximately 20 candidates remain
-            0.50 -> approximately 13 candidates remain
-            0.75 -> approximately 7 candidates remain
-        """
+        self.word_length = word_length
         self.eve_knowledge = max(0.0, min(1.0, eve_knowledge))
 
-        # Every letter gets a unique 5-bit code this round.
-        codes = random.sample(ALL_CODES, len(ALPHABET))
-        self.encode_map = dict(zip(ALPHABET, codes))
-        self.decode_map = {
-            code: letter for letter, code in self.encode_map.items()
-        }
-
-        # Determine how many letters Eve can rule out.
-        eliminated_count = round(
-            len(ALPHABET) * self.eve_knowledge
+        # Reserve separate key segments for Alice's word and Bob's guesses.
+        self.word_key_length = word_length * BITS_PER_LETTER
+        self.guess_key_start = self.word_key_length
+        self.guess_key_length = MAX_GUESSES * BITS_PER_LETTER
+        self.session_key_length = (
+            self.word_key_length + self.guess_key_length
         )
-        candidate_count = len(ALPHABET) - eliminated_count
 
-        # Each ciphertext has a fixed candidate set.
-        # Its true plaintext letter is always included.
-        self.candidates_by_code = {}
-
-        for letter, code in self.encode_map.items():
-            other_letters = [
-                candidate
-                for candidate in ALPHABET
-                if candidate != letter
-            ]
-
-            other_count = candidate_count - 1
-            selected = random.sample(other_letters, other_count)
-
-            self.candidates_by_code[code] = set(
-                selected + [letter]
+        # Establish a BB84 session, retrying if excessive errors are detected.
+        for _ in range(8):
+            try:
+                result = generate_key(
+                    self.session_key_length,
+                    intercept_probability=intercept_probability,
+                )
+                break
+            except EveDetectedError:
+                continue
+        else:
+            raise RuntimeError(
+                "BB84 could not establish a key after repeated "
+                "eavesdropping detections."
             )
 
+        self.key = result["key"]
+        self.qber = result["qber"]
+        self.intercepted_signals = result["eve_intercepts"]
+
+        # Eve learns a random fraction of the actual session-key bits.
+        known_count = round(
+            len(self.key) * self.eve_knowledge
+        )
+        known_positions = set(
+            random.sample(range(len(self.key)), known_count)
+        )
+
+        self.eve_known_bits = {
+            index: int(self.key[index])
+            for index in known_positions
+        }
+
+        # Bob's guesses use their own part of the key.
+        self.guess_cursor = self.guess_key_start
+        self.current_indices = []
+        self.current_ciphertext = None
+
+    def encrypt_word(self, word):
+        """
+        Encrypt Alice's secret word.
+
+        Returns one (ciphertext, key_indices) pair per character.
+        Eve receives these pairs, not the plaintext word.
+        """
+        if len(word) != self.word_length:
+            raise ValueError("Unexpected secret-word length.")
+
+        encrypted_word = []
+
+        for position, letter in enumerate(word):
+            start = position * BITS_PER_LETTER
+            indices = list(
+                range(start, start + BITS_PER_LETTER)
+            )
+
+            key_bits = "".join(self.key[i] for i in indices)
+            ciphertext = xor_bits(
+                letter_to_bits(letter),
+                key_bits,
+            )
+
+            encrypted_word.append((ciphertext, indices))
+
+        return encrypted_word
+
     def encode_letter(self, letter):
-        """Encrypt a plaintext letter."""
-        return self.encode_map[letter.lower()]
+        """Encrypt Bob's next guess with a fresh five-bit key segment."""
+        if self.guess_cursor + BITS_PER_LETTER > len(self.key):
+            raise RuntimeError("The guess-key segment has been exhausted.")
+
+        start = self.guess_cursor
+        self.current_indices = list(
+            range(start, start + BITS_PER_LETTER)
+        )
+
+        key_bits = "".join(
+            self.key[i] for i in self.current_indices
+        )
+
+        ciphertext = xor_bits(
+            letter_to_bits(letter),
+            key_bits,
+        )
+
+        self.guess_cursor += BITS_PER_LETTER
+        self.current_ciphertext = ciphertext
+
+        return ciphertext
 
     def decode_letter(self, encoded_code):
-        """Alice decrypts a letter."""
-        return self.decode_map[encoded_code]
+        """Alice decrypts Bob's ciphertext using the shared key."""
+        if encoded_code != self.current_ciphertext:
+            raise ValueError("Unexpected ciphertext.")
+
+        key_bits = "".join(
+            self.key[i] for i in self.current_indices
+        )
+
+        plaintext_bits = xor_bits(encoded_code, key_bits)
+        return bits_to_letter(plaintext_bits)
+
+    def get_possible_letters_for_block(self, ciphertext, key_indices):
+        """
+        Find plaintext letters consistent with Eve's known key bits
+        for one particular encrypted character.
+        """
+        possible = set()
+
+        for letter in ALPHABET:
+            plaintext_bits = letter_to_bits(letter)
+            inferred_key = xor_bits(ciphertext, plaintext_bits)
+
+            consistent = all(
+                inferred_key[offset] == str(
+                    self.eve_known_bits[key_index]
+                )
+                for offset, key_index in enumerate(key_indices)
+                if key_index in self.eve_known_bits
+            )
+
+            if consistent:
+                possible.add(letter)
+
+        return possible
 
     def get_possible_letters(self, encoded_code):
-        """
-        Eve sees candidate letters, not the encoded bits.
-        """
-        return sorted(self.candidates_by_code[encoded_code])
+        """Infer possible plaintext letters for Bob's latest guess."""
+        return self.get_possible_letters_for_block(
+            encoded_code,
+            self.current_indices,
+        )
 
-    def get_word_candidates(self, word):
-        """
-        Return Eve's initial candidate letters for each
-        character in Alice's encrypted word.
-        """
+    def get_word_candidates(self, encrypted_word):
+        """Infer independent candidate letters for every word position."""
         return [
-            set(self.get_possible_letters(self.encode_letter(letter)))
-            for letter in word.lower()
+            self.get_possible_letters_for_block(ciphertext, indices)
+            for ciphertext, indices in encrypted_word
         ]
