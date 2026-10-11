@@ -1,0 +1,61 @@
+.center {
+  display: flex;
+  justify-content: center;
+}
+
+button {
+  backdrop-filter: blur(15px);
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-weight: 400;
+  padding: 10px;
+  transition: 0.5s;
+  display: flex;
+  height: 50px;
+  justify-content: center;
+  align-items: center;
+  left: 0;
+  margin: 5% 5% 0 5%;
+  position: relative;
+  top: 0;
+  -webkit-backdrop-filter: blur(15px);
+  width: 250px;
+  z-index: 1;
+}
+
+button:hover {
+  letter-spacing: 3px;
+}
+
+button a::before {
+  background: linear-gradient(to left, rgba(255, 255, 255, 0.15), transparent);
+  transform: skewX(45deg) translate(0);
+  transition: 0.5s;
+  filter: blur(0px);
+}
+
+button::before {
+  left: 50%;
+  transform: translateX(-50%);
+  background: #f00;
+  border-radius: 10px;
+  transition: 0.5s;
+  transition-delay: 0.2s;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #5d326c, #350048);
+}
+
+h1 {
+  border: 3px solid;
+  display: flex;
+  justify-content: center;
+  margin-top: 5%;
+}
+
